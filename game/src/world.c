@@ -9,7 +9,7 @@ Body* CreateBody()
 {
 	Body* body = (Body*)malloc(sizeof(Body));
 	assert(body);
-	body->prev = NULL;
+	body->prev = (NULL);
 	body->next = bodies;
 	if (bodies) bodies->prev = body;
 	bodies = body;
@@ -20,8 +20,8 @@ Body* CreateBody()
 void DestroyBody(Body* body)
 {
 	assert(body);
-	if (body->prev) body->next = body->prev;
-	if (body->next) body->prev = body->next;
+	if (body->prev) body->prev->next = body->next;
+	if (body->next) body->next->prev = body->prev;
 	if (body == bodies) bodies = body->next;
 	bodyCount--;
 	free(body);

@@ -36,15 +36,9 @@ int main(void)
 
 		DrawCircle((int)position.x, (int)position.y, 10, YELLOW);
 
-		// update bodies
-		/*for (int i = 0; i < bodyCount; i++)
-		{
-			bodies[i].position = Vector2Add(bodies[i].position, bodies[i].velocity);
-			DrawCircle((int)bodies[i].position.x, (int)bodies[i].position.y, 5, RED);
-		}*/
-
+		// update & draw bodies
 		Body* currentBody = bodies;
-		for (int i = 0; i < bodyCount; i++)
+		while (currentBody)
 		{
 			currentBody->position = Vector2Add(currentBody->position, currentBody->velocity);
 			DrawCircle((int)currentBody->position.x, (int)currentBody->position.y, 5, RED);
@@ -54,7 +48,14 @@ int main(void)
 		EndDrawing();
 	}
 	CloseWindow();
-	free(bodies);
+	
+	Body* currentBody = bodies;
+	while (currentBody)
+	{
+		Body* temp = currentBody->next;
+		DestroyBody(currentBody);
+		currentBody = temp;
+	}
 
 	return 0;
 }
