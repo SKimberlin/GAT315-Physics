@@ -1,28 +1,38 @@
 #include "world.h"
 #include <assert.h>
 #include <stdlib.h>
+#include <string.h>
 
-Body* bodies = NULL;
-int bodyCount = 0;
+ncBody* ncBodies = NULL;
+int ncBodyCount = 0;
+Vector2 ncGravity;
 
-Body* CreateBody()
+ncBody* CreateBody()
 {
-	Body* body = (Body*)malloc(sizeof(Body));
+	ncBody* body = (ncBody*)malloc(sizeof(ncBody));
 	assert(body);
+
+	memset(body, 0, sizeof(ncBody));
+
 	body->prev = (NULL);
-	body->next = bodies;
-	if (bodies) bodies->prev = body;
-	bodies = body;
-	bodyCount++;
+	body->next = ncBodies;
+	if (ncBodies) ncBodies->prev = body;
+	ncBodies = body;
+	ncBodyCount++;
 	return body;
 }
 
-void DestroyBody(Body* body)
+void DestroyBody(ncBody* body)
 {
 	assert(body);
 	if (body->prev) body->prev->next = body->next;
 	if (body->next) body->next->prev = body->prev;
-	if (body == bodies) bodies = body->next;
-	bodyCount--;
+	if (body == ncBodies) ncBodies = body->next;
+	ncBodyCount--;
 	free(body);
+}
+
+void DestroyAllBodies()
+{
+
 }
