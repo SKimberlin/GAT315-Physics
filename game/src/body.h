@@ -31,9 +31,6 @@ typedef struct ncBody
 	float damping;
 	Color color;
 
-	Vector2 trail[50];
-	int trailLength;
-
 	struct ncBody* prev;
 	struct ncBody* next;
 
