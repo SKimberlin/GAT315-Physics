@@ -5,6 +5,7 @@
 #include "integrator.h"
 #include "render.h"
 #include "editor.h"
+#include "spring.h"
 
 #include <raylib.h>
 #include <raymath.h>
@@ -17,6 +18,9 @@
 
 int main(void)
 {
+	ncBody* selectedBody = NULL;
+	ncBody* connectBody = NULL;
+
 	InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Physics Engine");
 	InitEditor();
 	SetTargetFPS(60);
@@ -36,7 +40,14 @@ int main(void)
 
 		UpdateEditor(mousePosition);
 
-		if (IsMouseButtonPressed(0)) 
+		selectedBody = GetBodyIntersect(ncBodies, mousePosition);
+		if (selectedBody)
+		{
+			Vector2 screen = ConvertWorldToScreen(selectedBody->position);
+			DrawCircleLines((int)screen.x, (int)screen.y, ConvertWorldToPixel(selectedBody->mass) + 5, YELLOW);
+		}
+
+		if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) 
 		{
 			ncBody* body = CreateBody(ConvertScreenToWorld(mousePosition), ncEditorData.massMinValue, ncEditorData.bodyTypeActive);
 			body->color = (Color){ GetRandomValue(0, 255), GetRandomValue(0, 255), GetRandomValue(0, 255), 255 };
@@ -45,8 +56,21 @@ int main(void)
 			AddBody(body);
 		}
 
+		// connect spring
+		if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT) && selectedBody) connectBody = selectedBody;
+		if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT) && connectBody) DrawLineBodyToPosition(connectBody, mousePosition);
+		if (IsMouseButtonReleased(MOUSE_BUTTON_RIGHT) && connectBody)
+		{
+			if (selectedBody && selectedBody != connectBody)
+			{
+				ncSpring_t* spring = CreateSpring(connectBody, selectedBody, Vector2Distance(connectBody->position, selectedBody->position), 20);
+				AddSpring(spring);
+			}
+		}
+
 		// apply force
 		ApplyGravitation(ncBodies, ncEditorData.gravitationValue);
+		ApplySpringForce(ncSprings);
 
 		// update bodies
 
@@ -68,7 +92,15 @@ int main(void)
 		for (ncBody* body = ncBodies; body; body = body->next)
 		{
 			Vector2 screen = ConvertWorldToScreen(body->position);
-			DrawCircle((int)screen.x, (int)screen.y, body->mass, body->color);
+			DrawCircle((int)screen.x, (int)screen.y, ConvertWorldToPixel(body->mass), body->color);
+		}
+
+		// draw springs
+		for (ncSpring_t* spring = ncSprings; spring; spring = spring->next)
+		{
+			Vector2 screen1 = ConvertWorldToScreen(spring->body1->position);
+			Vector2 screen2 = ConvertWorldToScreen(spring->body2->position);
+			DrawLine(screen1.x, screen1.y, screen2.x, screen2.y, YELLOW);
 		}
 		DrawEditor(mousePosition);
 

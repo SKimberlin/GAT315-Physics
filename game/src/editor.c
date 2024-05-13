@@ -1,4 +1,6 @@
 #include "editor.h"
+#include "body.h"
+#include "render.h"
 #define RAYGUI_IMPLEMENTATION
 #include "../../raygui/src/raygui.h"
 
@@ -36,6 +38,8 @@ void InitEditor()
 void UpdateEditor(Vector2 position)
 {
     if (IsKeyPressed(KEY_TAB)) ncEditorData.editorBoxActive != !ncEditorData.editorBoxActive;
+
+    ncEditorIntersect = ncEditorActive;
 }
 
 void DrawEditor(Vector2 position)
@@ -59,4 +63,24 @@ void DrawEditor(Vector2 position)
 
     GuiUnlock();
     
+}
+
+ncBody* GetBodyIntersect(ncBody* bodies, Vector2 position)
+{
+    for (ncBody* body = bodies; body; body = body->next)
+    {
+        Vector2 screen = ConvertWorldToScreen(body->position);
+        if (CheckCollisionPointCircle(position, screen, ConvertWorldToPixel(body->mass)))
+        {
+            return body;
+        }
+    }
+
+    return NULL;
+}
+
+void DrawLineBodyToPosition(ncBody* body, Vector2 position)
+{
+    Vector2 screen = ConvertWorldToScreen(body->position);
+    DrawLine((int)screen.x, (int)screen.y, (int)position.x - cursorTexture.width / 2, (int)position.y - cursorTexture.height / 2, YELLOW);
 }
