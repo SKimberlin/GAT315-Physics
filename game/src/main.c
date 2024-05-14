@@ -16,6 +16,10 @@
 #define SCREEN_WIDTH 1280
 #define SCREEN_HEIGHT 720
 
+#define _CRTDBG_MAP_ALLOC
+#include <stdlib.h>
+#include <crtdbg.h>
+
 int main(void)
 {
 	ncBody* selectedBody = NULL;
@@ -26,17 +30,18 @@ int main(void)
 	SetTargetFPS(60);
 	
 	// initialize world
-	ncGravity = (Vector2){ 0, -50 };
+	
 
 	while (!WindowShouldClose())
 	{
 		// update
 		float dt = GetFrameTime();
 		float fps = (float)GetFPS();
+		ncGravity = (Vector2){ 0, -ncEditorData.gravityValue };
 
 		Vector2 mousePosition = GetMousePosition();
-		ncScreenZoom += GetMouseWheelMove() * 0.2f;
-		ncScreenZoom += Clamp(ncScreenZoom, 0.1f, 10);
+		//ncScreenZoom += GetMouseWheelMove() * 0.2f;
+		//ncScreenZoom += Clamp(ncScreenZoom, 0.1f, 10);
 
 		UpdateEditor(mousePosition);
 
@@ -47,9 +52,9 @@ int main(void)
 			DrawCircleLines((int)screen.x, (int)screen.y, ConvertWorldToPixel(selectedBody->mass) + 5, YELLOW);
 		}
 
-		if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) 
+		if (!ncEditorIntersect && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) 
 		{
-			ncBody* body = CreateBody(ConvertScreenToWorld(mousePosition), ncEditorData.massMinValue, ncEditorData.bodyTypeActive);
+			ncBody* body = CreateBody(ConvertScreenToWorld(mousePosition), ncEditorData.massValue, ncEditorData.bodyTypeActive);
 			body->color = (Color){ GetRandomValue(0, 255), GetRandomValue(0, 255), GetRandomValue(0, 255), 255 };
 			body->damping = ncEditorData.dampingValue;
 			body->gravityScale = ncEditorData.gravityScaleValue;
@@ -109,6 +114,7 @@ int main(void)
 	CloseWindow();
 
 	DestroyAllBodies();
+	_CrtDumpMemoryLeaks();
 
 	return 0;
 }

@@ -22,24 +22,28 @@ void InitEditor()
     HideCursor();
 
     ncEditorData.anchor01 = (Vector2){ 840, 24 };
-
     ncEditorData.editorBoxActive = true;
-    ncEditorData.massMinValue = 1;
-    ncEditorData.massMaxValue = 1;
-    ncEditorData.gravitationValue = 0;
+
+    // body
     ncEditorData.bodyTypeEditMode = false;
     ncEditorData.bodyTypeActive = 0;
+    ncEditorData.massValue = 1;
     ncEditorData.dampingValue = 0;
     ncEditorData.gravityScaleValue = 0;
+    ncEditorData.stiffnessValue = 10;
+
+    // world
+    ncEditorData.gravityValue = 0;
+    ncEditorData.gravitationValue = 0;
     
     editorRect = (Rectangle){ ncEditorData.anchor01.x + 0, ncEditorData.anchor01.y + 0, 240, 576 };
 }
 
 void UpdateEditor(Vector2 position)
 {
-    if (IsKeyPressed(KEY_TAB)) ncEditorData.editorBoxActive != !ncEditorData.editorBoxActive;
+    if (IsKeyPressed(KEY_TAB)) ncEditorData.editorBoxActive = !ncEditorData.editorBoxActive;
 
-    ncEditorIntersect = ncEditorActive;
+    ncEditorIntersect = (ncEditorData.editorBoxActive && CheckCollisionPointRec(position, editorRect));
 }
 
 void DrawEditor(Vector2 position)
@@ -48,15 +52,16 @@ void DrawEditor(Vector2 position)
 
     if (ncEditorData.editorBoxActive)
     {
-        ncEditorData.editorBoxActive = !GuiWindowBox((Rectangle) { ncEditorData.anchor01.x + 0, ncEditorData.anchor01.y + 0, 240, 576 }, "Editor");
-        GuiGroupBox((Rectangle) { ncEditorData.anchor01.x + 16, ncEditorData.anchor01.y + 40, 208, 192 }, "Body");
-        GuiGroupBox((Rectangle) { ncEditorData.anchor01.x + 16, ncEditorData.anchor01.y + 240, 208, 144 }, "World");
-        GuiSlider((Rectangle) { ncEditorData.anchor01.x + 96, ncEditorData.anchor01.y + 80, 120, 16 }, "Mass Min", NULL, & ncEditorData.massMinValue, 0.1f, 100);
-        GuiSlider((Rectangle) { ncEditorData.anchor01.x + 96, ncEditorData.anchor01.y + 104, 120, 16 }, "Mass Max", NULL, & ncEditorData.massMaxValue, 0.1f, 100);
-        GuiSlider((Rectangle) { ncEditorData.anchor01.x + 96, ncEditorData.anchor01.y + 128, 120, 16 }, "Damping", NULL, & ncEditorData.dampingValue, 0, 1);
-        GuiSlider((Rectangle) { ncEditorData.anchor01.x + 96, ncEditorData.anchor01.y + 152, 120, 16 }, "Gravity Scale", NULL, & ncEditorData.gravityScaleValue, 0, 1);
-        GuiSliderBar((Rectangle) { ncEditorData.anchor01.x + 96, ncEditorData.anchor01.y + 248, 120, 16 }, "Gravitation", NULL, & ncEditorData.gravitationValue, 0, 100);
-        if (GuiDropdownBox((Rectangle) { ncEditorData.anchor01.x + 24, ncEditorData.anchor01.y + 48, 192, 24 }, "STATIC; KINEMATIC; DYNAMIC", & ncEditorData.bodyTypeActive, ncEditorData.bodyTypeEditMode)) ncEditorData.bodyTypeEditMode = !ncEditorData.bodyTypeEditMode;
+        ncEditorData.editorBoxActive = !GuiWindowBox((Rectangle) { ncEditorData.anchor01.x + 0, ncEditorData.anchor01.y + 0, 300, 576 }, "Editor");
+        GuiGroupBox((Rectangle) { ncEditorData.anchor01.x + 16, ncEditorData.anchor01.y + 40, 268, 192 }, "Body");
+        GuiGroupBox((Rectangle) { ncEditorData.anchor01.x + 16, ncEditorData.anchor01.y + 240, 268, 144 }, "World");
+        GuiSliderBar((Rectangle) { ncEditorData.anchor01.x + 116, ncEditorData.anchor01.y + 80, 120, 16 }, "Mass", TextFormat("%0.2f", ncEditorData.massValue), & ncEditorData.massValue, 0.1f, 10);
+        GuiSliderBar((Rectangle) { ncEditorData.anchor01.x + 116, ncEditorData.anchor01.y + 104, 120, 16 }, "Damping", TextFormat("%0.2f", ncEditorData.dampingValue), & ncEditorData.dampingValue, 0, 1);
+        GuiSliderBar((Rectangle) { ncEditorData.anchor01.x + 116, ncEditorData.anchor01.y + 128, 120, 16 }, "Gravity Scale", TextFormat("%0.2f", ncEditorData.gravityScaleValue), & ncEditorData.gravityScaleValue, 0, 1);
+        GuiSliderBar((Rectangle) { ncEditorData.anchor01.x + 116, ncEditorData.anchor01.y + 152, 120, 16 }, "Stiffness", TextFormat("%0.2f", ncEditorData.stiffnessValue), & ncEditorData.stiffnessValue, 0, 1);
+        GuiSlider((Rectangle) { ncEditorData.anchor01.x + 116, ncEditorData.anchor01.y + 248, 120, 16 }, "Gravity", TextFormat("%0.2f", ncEditorData.gravityValue), & ncEditorData.gravityValue, -100, 100);
+        GuiSlider((Rectangle) { ncEditorData.anchor01.x + 116, ncEditorData.anchor01.y + 272, 120, 16 }, "Gravitation", TextFormat("%0.2f", ncEditorData.gravitationValue), & ncEditorData.gravitationValue, -100, 100);
+        if (GuiDropdownBox((Rectangle) { ncEditorData.anchor01.x + 24, ncEditorData.anchor01.y + 48, 252, 24 }, "STATIC; KINEMATIC; DYNAMIC", & ncEditorData.bodyTypeActive, ncEditorData.bodyTypeEditMode)) ncEditorData.bodyTypeEditMode = !ncEditorData.bodyTypeEditMode;
     }
 
     DrawTexture(cursorTexture, (int)position.x - cursorTexture.width / 2, (int)position.y - cursorTexture.height / 2, WHITE);
