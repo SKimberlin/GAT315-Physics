@@ -53,4 +53,5 @@ void DestroyAllBodies()
 		body = temp;
 	}
 	ncBodyCount = 0;
+	ncBodies = NULL;
 }

@@ -26,10 +26,13 @@ int main(void)
 {
 	ncBody* selectedBody = NULL;
 	ncBody* connectBody = NULL;
+	ncContact_t* contacts = NULL;
 
 	InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Physics Engine");
 	InitEditor();
 	SetTargetFPS(60);
+	
+	float timeAccumulator = 0;
 	
 	// initialize world
 	
@@ -39,7 +42,9 @@ int main(void)
 		// update
 		float dt = GetFrameTime();
 		float fps = (float)GetFPS();
+		float fixedTimestep = 1.0 / ncEditorData.timestepValue;
 		ncGravity = (Vector2){ 0, -ncEditorData.gravityValue };
+		
 
 		Vector2 mousePosition = GetMousePosition();
 		//ncScreenZoom += GetMouseWheelMove() * 0.2f;
@@ -76,22 +81,32 @@ int main(void)
 			}
 		}
 
-		// apply force
-		ApplyGravitation(ncBodies, ncEditorData.gravitationValue);
-		ApplySpringForce(ncSprings);
-
-		// update bodies
-
-		for (ncBody* body = ncBodies; body; body = body->next)
+		if (ncEditorData.reset)
 		{
-			Step(body, dt);
+			DestroyAllSprings();
+			DestroyAllBodies();
 		}
 
-		// collision
-		ncContact_t* contacts = NULL;
-		CreateContacts(ncBodies, &contacts);
-		SeparateContacts(contacts);
-		ResolveContacts(contacts);
+		// apply force
+		timeAccumulator += dt;
+		while (timeAccumulator >= fixedTimestep)
+		{
+			timeAccumulator -= fixedTimestep;
+			if (ncEditorData.simulate) continue;
+
+			ApplyGravitation(ncBodies, ncEditorData.gravitationValue);
+			ApplySpringForce(ncSprings);
+
+			for (ncBody* body = ncBodies; body; body = body->next)
+			{
+				Step(body, dt);
+			}
+			DestroyAllContacts(&contacts);
+			CreateContacts(ncBodies, &contacts);
+			SeparateContacts(contacts);
+			ResolveContacts(contacts);
+		}
+		
 
 		// render
 		BeginDrawing();
@@ -130,8 +145,11 @@ int main(void)
 		EndDrawing();
 	}
 	CloseWindow();
-
+	
 	DestroyAllBodies();
+	DestroyAllSprings();
+	DestroyAllContacts(&contacts);
+	
 	_CrtDumpMemoryLeaks();
 
 	return 0;

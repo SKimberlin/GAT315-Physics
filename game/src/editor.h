@@ -8,6 +8,9 @@ typedef struct ncEditorData
     bool editorBoxActive;
     bool bodyTypeEditMode;
 
+    bool simulate;
+    bool reset;
+
     int bodyTypeActive;
     float massValue;
     float dampingValue;
@@ -16,6 +19,7 @@ typedef struct ncEditorData
 
     float gravitationValue;
     float gravityValue;
+    float timestepValue;
 } ncEditorData_t;
 
 extern ncEditorData_t ncEditorData;

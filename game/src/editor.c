@@ -24,6 +24,7 @@ void InitEditor()
     ncEditorData.anchor01 = (Vector2){ 840, 24 };
     ncEditorData.editorBoxActive = true;
 
+
     // body
     ncEditorData.bodyTypeEditMode = false;
     ncEditorData.bodyTypeActive = 0;
@@ -35,6 +36,7 @@ void InitEditor()
     // world
     ncEditorData.gravityValue = 0;
     ncEditorData.gravitationValue = 0;
+    ncEditorData.timestepValue = 50;
     
     editorRect = (Rectangle){ ncEditorData.anchor01.x + 0, ncEditorData.anchor01.y + 0, 240, 576 };
 }
@@ -61,7 +63,10 @@ void DrawEditor(Vector2 position)
         GuiSliderBar((Rectangle) { ncEditorData.anchor01.x + 116, ncEditorData.anchor01.y + 152, 120, 16 }, "Stiffness", TextFormat("%0.2f", ncEditorData.stiffnessValue), & ncEditorData.stiffnessValue, 0, 1);
         GuiSlider((Rectangle) { ncEditorData.anchor01.x + 116, ncEditorData.anchor01.y + 248, 120, 16 }, "Gravity", TextFormat("%0.2f", ncEditorData.gravityValue), & ncEditorData.gravityValue, -100, 100);
         GuiSlider((Rectangle) { ncEditorData.anchor01.x + 116, ncEditorData.anchor01.y + 272, 120, 16 }, "Gravitation", TextFormat("%0.2f", ncEditorData.gravitationValue), & ncEditorData.gravitationValue, -100, 100);
+        GuiSliderBar((Rectangle) { ncEditorData.anchor01.x + 116, ncEditorData.anchor01.y + 296, 120, 16 }, "Timestep", TextFormat("%0.2f", ncEditorData.timestepValue), & ncEditorData.timestepValue, 1, 100);
         if (GuiDropdownBox((Rectangle) { ncEditorData.anchor01.x + 24, ncEditorData.anchor01.y + 48, 252, 24 }, "STATIC; KINEMATIC; DYNAMIC", & ncEditorData.bodyTypeActive, ncEditorData.bodyTypeEditMode)) ncEditorData.bodyTypeEditMode = !ncEditorData.bodyTypeEditMode;
+        ncEditorData.reset = GuiButton((Rectangle) { ncEditorData.anchor01.x + 16, ncEditorData.anchor01.y + 400, 125, 30 }, "Reset");
+        GuiToggle((Rectangle) { ncEditorData.anchor01.x + 158, ncEditorData.anchor01.y + 400, 125, 30 }, "Simulate", &ncEditorData.simulate);
     }
 
     DrawTexture(cursorTexture, (int)position.x - cursorTexture.width / 2, (int)position.y - cursorTexture.height / 2, WHITE);
